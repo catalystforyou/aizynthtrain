@@ -124,8 +124,6 @@ class TemplatesExtractionFlow(FlowSpec):
         if idx > -1 and not Path(batch_output).exists():
             template_runner(
                 [
-                    "--forward",
-                    self.config.forward,
                     "--input_path",
                     self.config.selected_reactions_path,
                     "--output_path",
@@ -139,6 +137,8 @@ class TemplatesExtractionFlow(FlowSpec):
                     "--batch",
                     str(start),
                     str(end),
+                    "--forward",
+                    str(self.config.forward),
                 ]
             )
         else:
@@ -198,9 +198,14 @@ class TemplatesExtractionFlow(FlowSpec):
     @step
     def template_selection(self):
         """Selection templates and produce report"""
-        notebook_path = str(
-            Path(__file__).parent / "notebooks" / "template_selection.py"
-        )
+        if self.config.forward:
+            notebook_path = str(
+                Path(__file__).parent / "notebooks" / "template_selection_forward.py"
+            )
+        else:
+            notebook_path = str(
+                Path(__file__).parent / "notebooks" / "template_selection.py"
+            )
         output_path = prefix_filename(
             self.config.selected_templates_prefix,
             self.config.selected_templates_postfix,

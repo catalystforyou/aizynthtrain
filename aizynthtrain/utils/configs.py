@@ -62,7 +62,7 @@ class TemplatePipelineConfig(BaseModel):
     templates_report_path: str = "template_selection_report.html"
     min_template_occurrence: int = 10
     nbatches: int = 24
-    forward: bool = False
+    forward: int = 0
 
 
 # Config classes for the expansion model pipeline

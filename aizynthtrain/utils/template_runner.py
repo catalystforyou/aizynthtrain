@@ -16,7 +16,7 @@ def generate_templates(
     ringbreaker_column: str,
     smiles_column: str,
     forward: bool,
-) -> None:
+) -> pd.DataFrame:
     """
     Generate templates for the reaction in a given dataframe
 
@@ -40,6 +40,7 @@ def generate_templates(
         expand_ring: bool,
         expand_hetero: bool,
         ringbreaker_column: str,
+        forward: bool,
     ) -> pd.Series:
         rxn = ChemicalReaction(row[column], clean_smiles=False)
         general_error = {
@@ -55,35 +56,9 @@ def generate_templates(
         elif ringbreaker_column and not row[ringbreaker_column]:
             expand_ring = False
             expand_hetero = False
-        try:
-            _, retro_template = rxn.generate_reaction_template(
-                radius=radius, expand_ring=expand_ring, expand_hetero=expand_hetero
-            )
-        except ReactionException as err:
-            general_error["TemplateError"] = str(err)
-            return pd.Series(general_error)
-        except Exception:
-            general_error["TemplateError"] = "General error when generating template"
-            return pd.Series(general_error)
-
-        try:
-            hash_ = retro_template.hash_from_bits()
-        except Exception:
-            general_error[
-                "TemplateError"
-            ] = "General error when generating template hash"
-            return pd.Series(general_error)
-
-        return pd.Series(
-            {
-                "RetroTemplate": retro_template.smarts,
-                "TemplateHash": hash_,
-                "TemplateError": None,
-            }
-        )
-        '''else:
+        if not forward:
             try:
-                retro_template, _ = rxn.generate_reaction_template(
+                _, retro_template = rxn.generate_reaction_template(
                     radius=radius, expand_ring=expand_ring, expand_hetero=expand_hetero
                 )
             except ReactionException as err:
@@ -107,7 +82,34 @@ def generate_templates(
                     "TemplateHash": hash_,
                     "TemplateError": None,
                 }
-            )'''
+            )
+        else:
+            try:
+                forward_template, _ = rxn.generate_reaction_template(
+                    radius=radius, expand_ring=expand_ring, expand_hetero=expand_hetero
+                )
+            except ReactionException as err:
+                general_error["TemplateError"] = str(err)
+                return pd.Series(general_error)
+            except Exception:
+                general_error["TemplateError"] = "General error when generating template"
+                return pd.Series(general_error)
+
+            try:
+                hash_ = forward_template.hash_from_bits()
+            except Exception:
+                general_error[
+                    "TemplateError"
+                ] = "General error when generating template hash"
+                return pd.Series(general_error)
+
+            return pd.Series(
+                {
+                    "ForwardTemplate": forward_template.smarts,
+                    "TemplateHash": hash_,
+                    "TemplateError": None,
+                }
+            )
     template_data = data.apply(
         _row_apply,
         axis=1,
@@ -116,13 +118,14 @@ def generate_templates(
         expand_hetero=expand_hetero,
         ringbreaker_column=ringbreaker_column,
         column=smiles_column,
+        forward=forward,
     )
     return data.assign(
         **{column: template_data[column] for column in template_data.columns}
     )
 
 
-def main(args: Optional[Sequence] = None) -> None:
+def main(args) -> None:
     """Command-line interface for template extraction"""
     parser = argparse.ArgumentParser("Generate retrosynthesis templates")
     parser.add_argument("--input_path", required=True)
@@ -133,8 +136,8 @@ def main(args: Optional[Sequence] = None) -> None:
     parser.add_argument("--ringbreaker_column", default="")
     parser.add_argument("--smiles_column", required=True)
     parser.add_argument("--batch", type=int, nargs=2)
-    parser.add_argument("--forward", type=bool, default=False)
-    args = parser.parse_args(args=args)
+    parser.add_argument("--forward", type=int, default=0)
+    args = parser.parse_args(args)
 
     data = read_csv_batch(args.input_path, sep="\t", index_col=False, batch=args.batch)
     data = generate_templates(
@@ -148,6 +151,3 @@ def main(args: Optional[Sequence] = None) -> None:
     )
     data.to_csv(args.output_path, index=False, sep="\t")
 
-
-if __name__ == "__main__":
-    main()

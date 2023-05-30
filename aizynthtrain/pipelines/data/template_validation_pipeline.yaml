@@ -1,5 +1,8 @@
 count_template_components:
   in_column: RetroTemplate
-retro_template_reproduction:
-  template_column: RetroTemplate
+# retro_template_reproduction:
+#   template_column: RetroTemplate
+#   smiles_column: RxnSmilesClean
+forward_template_reproduction:
+  template_column: ForwardTemplate
   smiles_column: RxnSmilesClean
