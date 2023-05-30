@@ -137,4 +137,6 @@ class ExpansionModelFlow(FlowSpec):
 
 
 if __name__ == "__main__":
+    import os
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     ExpansionModelFlow()

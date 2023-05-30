@@ -8,4 +8,4 @@ source ~/.bashrc
 conda activate aizynthtrain
 unset JUPYTER_PATH
 
-python -m aizynthtrain.pipelines.template_pipeline run --config template_pipeline_config.yml --max-workers 32 --max-num-splits 200
+python -m aizynthtrain.pipelines.template_pipeline run --config template_pipeline_config.yml --max-workers 24 --max-num-splits 24

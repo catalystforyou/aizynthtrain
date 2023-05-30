@@ -1,12 +1,13 @@
 expansion_model_pipeline:
   python_kernel: aizynthtrain
-  file_prefix: uspto
+  file_prefix: uspto_n5
   routes_to_exclude:
-    - ref_routes_n1.json
-    - ref_routes_n5.json
+    # - ref_routes_n1.json
+    # - ref_routes_n5.json
+    - n5-2-routes.json
 
 expansion_model_evaluation:
-  file_prefix: uspto
+  file_prefix: uspto_n5-2
   stock_for_finding: stock_for_eval_find.hdf5
   target_smiles: smiles_for_eval.txt
   stock_for_recovery: stock_for_eval_recov.txt

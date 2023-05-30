@@ -61,7 +61,7 @@ class TemplatesExtractionFlow(FlowSpec):
         idx, start, end = self.input
         if idx > -1:
             validation_runner(
-                [
+                [   
                     "--pipeline",
                     pipeline_path,
                     "--data",
@@ -124,6 +124,8 @@ class TemplatesExtractionFlow(FlowSpec):
         if idx > -1 and not Path(batch_output).exists():
             template_runner(
                 [
+                    "--forward",
+                    self.config.forward,
                     "--input_path",
                     self.config.selected_reactions_path,
                     "--output_path",

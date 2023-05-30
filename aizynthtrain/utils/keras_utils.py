@@ -6,7 +6,7 @@ import numpy as np
 
 from tensorflow.config import list_physical_devices
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers.legacy import Adam
 from tensorflow.keras.utils import Sequence
 from tensorflow.keras.callbacks import (
     EarlyStopping,
@@ -36,7 +36,7 @@ class InMemorySequence(Sequence):  # pylint: disable=W0223
     def __init__(
         self, input_filename: str, output_filename: str, batch_size: int
     ) -> None:
-        self.batch_size = batch_size
+        self.batch_size = batch_size // 2
         self.input_matrix = self._load_data(input_filename)
         self.label_matrix = self._load_data(output_filename)
         self.input_dim = self.input_matrix.shape[1]

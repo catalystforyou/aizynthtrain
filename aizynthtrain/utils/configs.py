@@ -61,7 +61,8 @@ class TemplatePipelineConfig(BaseModel):
     validated_templates_path: str = "reaction_templates_validated.csv"
     templates_report_path: str = "template_selection_report.html"
     min_template_occurrence: int = 10
-    nbatches: int = 200
+    nbatches: int = 24
+    forward: bool = False
 
 
 # Config classes for the expansion model pipeline
@@ -153,7 +154,7 @@ class ExpansionModelEvaluationConfig(BaseModel, _FilenameMixin):
         default_factory=lambda: {
             "max_transforms": 10,
             "iteration_limit": 500,
-            "time_limit": 3600,
+            "time_limit": 10,
         }
     )
     reference_routes: str = ""

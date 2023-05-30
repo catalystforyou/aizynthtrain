@@ -15,6 +15,7 @@ def generate_templates(
     expand_hetero: bool,
     ringbreaker_column: str,
     smiles_column: str,
+    forward: bool,
 ) -> None:
     """
     Generate templates for the reaction in a given dataframe
@@ -80,7 +81,33 @@ def generate_templates(
                 "TemplateError": None,
             }
         )
+        '''else:
+            try:
+                retro_template, _ = rxn.generate_reaction_template(
+                    radius=radius, expand_ring=expand_ring, expand_hetero=expand_hetero
+                )
+            except ReactionException as err:
+                general_error["TemplateError"] = str(err)
+                return pd.Series(general_error)
+            except Exception:
+                general_error["TemplateError"] = "General error when generating template"
+                return pd.Series(general_error)
 
+            try:
+                hash_ = retro_template.hash_from_bits()
+            except Exception:
+                general_error[
+                    "TemplateError"
+                ] = "General error when generating template hash"
+                return pd.Series(general_error)
+
+            return pd.Series(
+                {
+                    "RetroTemplate": retro_template.smarts,
+                    "TemplateHash": hash_,
+                    "TemplateError": None,
+                }
+            )'''
     template_data = data.apply(
         _row_apply,
         axis=1,
@@ -95,7 +122,7 @@ def generate_templates(
     )
 
 
-def main(args: Optional[Sequence[str]] = None) -> None:
+def main(args: Optional[Sequence] = None) -> None:
     """Command-line interface for template extraction"""
     parser = argparse.ArgumentParser("Generate retrosynthesis templates")
     parser.add_argument("--input_path", required=True)
@@ -106,6 +133,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
     parser.add_argument("--ringbreaker_column", default="")
     parser.add_argument("--smiles_column", required=True)
     parser.add_argument("--batch", type=int, nargs=2)
+    parser.add_argument("--forward", type=bool, default=False)
     args = parser.parse_args(args=args)
 
     data = read_csv_batch(args.input_path, sep="\t", index_col=False, batch=args.batch)
@@ -116,6 +144,7 @@ def main(args: Optional[Sequence[str]] = None) -> None:
         args.expand_hetero,
         args.ringbreaker_column,
         args.smiles_column,
+        args.forward,
     )
     data.to_csv(args.output_path, index=False, sep="\t")
 

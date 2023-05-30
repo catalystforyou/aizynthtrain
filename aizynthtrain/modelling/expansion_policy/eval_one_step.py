@@ -135,7 +135,7 @@ def _eval_expander(
 def _run_expander(
     ref_reactions_path: str, config_path: str, config: ExpansionModelEvaluationConfig
 ) -> List[Dict[str, Any]]:
-    ref_reactions = pd.read_csv(ref_reactions_path, sep="\t")
+    ref_reactions = pd.read_csv(ref_reactions_path, sep="\t")[:10]
     targets = [
         rxn.split(">>")[1] for rxn in ref_reactions[config.columns.reaction_smiles]
     ]

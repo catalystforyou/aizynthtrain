@@ -1,8 +1,9 @@
 template_pipeline:
   python_kernel: aizynthtrain
+  # forward: True
   data_import_class: aizynthtrain.data.uspto.UsptoImporter
   data_import_config:
-    data_path: uspto_data_mapped.csv
+    data_path: uspto_data_mapped_sample.csv
   selected_templates_prefix: uspto
   min_template_occurrence: 3
   
